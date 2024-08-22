@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload</title>
+</head>
+<body>
+
+<h1>Upload!</h1>
+
+<form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+  <input type="file" name="photo" id="file" accept="image/*">
+  <input type="submit" value="Upload image" name="submit">
+</form>
+
+<div id="gallery">
+  <!-- imagens -->
+</div>
+
+<script type="text/javascript">
+  const gallery = document.getElementById('gallery');
+
+  const addImage = (url) => {
+    const imgElement = document.createElement('img');
+    imgElement.src = url;
+    imgElement.width = 300;
+    gallery.appendChild(imgElement);
+  };
+
+  const uploadImage = (e) => {
+    e.preventDefault();
+    const form = document.getElementById('upload-form');
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+      method: form.method,
+      body: formData
+    })
+    .then(response => response.json())
+    .then(result => {
+      console.log('Upload result:', result);
+      // Exemplo de resposta
+      // {"photo": {"server": "123", "id": "456", "secret": "abcdef"}}
+      if (result && result.photo) {
+        const { photo } = result;
+        const url = `https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.jpg`;
+        addImage(url);
+      }
+    })
+    .catch(error => {
+      console.error('Upload failed', error);
+    });
+  };
+
+  const form = document.getElementById('upload-form');
+  form.addEventListener('submit', uploadImage);
+</script>
+
+</body>
+</html>
